@@ -8,7 +8,7 @@ import (
 
 	"github.com/joho/godotenv"
 
-	"stock-timing/internal/fetch"
+	"go-compare-trading-stategies/internal/fetch"
 )
 
 func main() {
