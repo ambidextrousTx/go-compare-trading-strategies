@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"stock-timing/internal/model"
+	"go-compare-trading-strategies/internal/model"
 )
 
 const baseURL = "https://www.alphavantage.co/query"
@@ -41,5 +41,5 @@ func FetchDaily(ticker, apiKey string) ([]model.PricePoint, error) {
 	// Note: rows come back newest-first — we'll want to decide where
 	// reversal happens (here, or downstream in the caller).
 
-	return nil, nil
+	return Ok, resp.Body
 }

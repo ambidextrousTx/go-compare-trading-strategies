@@ -8,7 +8,7 @@ import (
 
 	"github.com/joho/godotenv"
 
-	"go-compare-trading-stategies/internal/fetch"
+	"go-compare-trading-strategies/internal/fetch"
 )
 
 func main() {
