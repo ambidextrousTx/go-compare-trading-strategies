@@ -23,6 +23,7 @@ func main() {
 
 	// TODO: take ticker as a CLI arg instead of hardcoding
 	ticker := "AAPL"
+	fmt.Println("Ticker is", ticker)
 
 	prices, err := fetch.FetchDaily(ticker, apiKey)
 	if err != nil {

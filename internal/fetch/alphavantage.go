@@ -21,11 +21,12 @@ func FetchDaily(ticker, apiKey string) ([]model.PricePoint, error) {
 	q := u.Query()
 	q.Set("function", "TIME_SERIES_DAILY")
 	q.Set("symbol", ticker)
-	q.Set("outputsize", "full")
+	// q.Set("outputsize", "full") // Premium feature
 	q.Set("datatype", "csv")
 	q.Set("apikey", apiKey)
 	u.RawQuery = q.Encode()
 
+	fmt.Println("Requesting", u)
 	resp, err := http.Get(u.String())
 	if err != nil {
 		return nil, fmt.Errorf("requesting data for %s: %w", ticker, err)
@@ -36,10 +37,11 @@ func FetchDaily(ticker, apiKey string) ([]model.PricePoint, error) {
 		return nil, fmt.Errorf("unexpected status %d fetching %s", resp.StatusCode, ticker)
 	}
 
+	fmt.Println(resp.Body)
 	// TODO: parse resp.Body as CSV into []model.PricePoint
 	// Columns from Alpha Vantage: timestamp,open,high,low,close,volume
 	// Note: rows come back newest-first — we'll want to decide where
 	// reversal happens (here, or downstream in the caller).
 
-	return Ok, resp.Body
+	return nil, nil
 }
