@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"io"
+	"log"
 
 	"go-compare-trading-strategies/internal/model"
 )
@@ -37,7 +39,13 @@ func FetchDaily(ticker, apiKey string) ([]model.PricePoint, error) {
 		return nil, fmt.Errorf("unexpected status %d fetching %s", resp.StatusCode, ticker)
 	}
 
-	fmt.Println(resp.Body)
+	body, err := io.ReadAll(resp.Body)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("%s", body)
 	// TODO: parse resp.Body as CSV into []model.PricePoint
 	// Columns from Alpha Vantage: timestamp,open,high,low,close,volume
 	// Note: rows come back newest-first — we'll want to decide where
