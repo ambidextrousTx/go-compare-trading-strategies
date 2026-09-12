@@ -2,18 +2,36 @@
 package fetch
 
 import (
-	"io"
 	"encoding/csv"
+	"errors"
 	"fmt"
-	"time"
+	"io"
 	"net/http"
 	"net/url"
+	"slices"
 	"strconv"
+	"time"
 
 	"go-compare-trading-strategies/internal/model"
 )
 
 const baseURL = "https://www.alphavantage.co/query"
+
+func parseIntColumn(record []string, index int, name string) (int64, error) {
+	v, err := strconv.ParseInt(record[index], 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("parsing %s (%q): %w", name, record[index], err)
+	}
+	return v, nil
+}
+
+func parseFloatColumn(record []string, index int, name string) (float64, error) {
+	v, err := strconv.ParseFloat(record[index], 64)
+	if err != nil {
+		return 0, fmt.Errorf("parsing %s (%q): %w", name, record[index], err)
+	}
+	return v, nil
+}
 
 // FetchDaily retrieves full daily price history for a ticker.
 func FetchDaily(ticker, apiKey string) ([]model.PricePoint, error) {
@@ -50,7 +68,7 @@ func FetchDaily(ticker, apiKey string) ([]model.PricePoint, error) {
 
 	header, err := reader.Read() // consume the header
 	if err != nil {
-		return nil, fmt.Errorf("Reading CSV header: %w", header)
+		return nil, fmt.Errorf("reading CSV header: %w", err)
 	}
 
 	_ = header
@@ -58,41 +76,45 @@ func FetchDaily(ticker, apiKey string) ([]model.PricePoint, error) {
 	for {
 		record, err := reader.Read()
 
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 
 		if err != nil {
-        return nil, fmt.Errorf("Reading CSV row: %w", err)
-    }
+			return nil, fmt.Errorf("reading CSV row: %w", err)
+		}
 
-		date, err := time.Parse(time.UnixDate, record[0])
+		date, err := time.Parse(time.DateOnly, record[0])
 		if err != nil {
-			fmt.Errorf("Error reading row: %w", record)
+			return nil, err
 		}
-		open, err := strconv.ParseFloat(record[1], 64)
+		open, err := parseFloatColumn(record, 1, "open")
 		if err != nil {
-			fmt.Errorf("Error reading row: %w", record)
+			return nil, fmt.Errorf("parsing date (%q): %w", record[0], err)
 		}
-		high, err := strconv.ParseFloat(record[2], 64)
+
+		high, err := parseFloatColumn(record, 2, "high")
 		if err != nil {
-			fmt.Errorf("Error reading row: %w", record)
+			return nil, err
 		}
-		low, err := strconv.ParseFloat(record[3], 64)
+
+		low, err := parseFloatColumn(record, 3, "low")
 		if err != nil {
-			fmt.Errorf("Error reading row: %w", record)
+			return nil, err
 		}
-		closing, err := strconv.ParseFloat(record[4], 64)
+
+		closing, err := parseFloatColumn(record, 4, "closing")
 		if err != nil {
-			fmt.Errorf("Error reading row: %w", record)
+			return nil, err
 		}
-		volume, err := strconv.ParseInt(record[5], 10, 64)
+
+		volume, err := parseIntColumn(record, 5, "volume")
 		if err != nil {
-			fmt.Errorf("Error reading row: %w", record)
+			return nil, err
 		}
 
 		pricePoints = append(pricePoints,
-			model.PricePoint {
+			model.PricePoint{
 				Date:   date,
 				Open:   open,
 				High:   high,
@@ -102,5 +124,6 @@ func FetchDaily(ticker, apiKey string) ([]model.PricePoint, error) {
 			})
 	}
 
+	slices.Reverse(pricePoints)
 	return pricePoints, nil
 }

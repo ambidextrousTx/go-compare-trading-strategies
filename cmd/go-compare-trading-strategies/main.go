@@ -31,4 +31,5 @@ func main() {
 	}
 
 	fmt.Printf("fetched %d price points for %s\n", len(prices), ticker)
+	fmt.Printf("first price point %s", prices[0])
 }
