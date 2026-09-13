@@ -9,7 +9,28 @@ import (
 	"github.com/joho/godotenv"
 
 	"go-compare-trading-strategies/internal/fetch"
+	"go-compare-trading-strategies/internal/model"
 )
+
+func calculateBuyAndHoldProfit(prices []model.PricePoint) (model.StrategyResult, error) {
+	if len(prices) == 0 {
+		return model.StrategyResult{}, fmt.Errorf("no price data to evaluate")
+	}
+
+	first := prices[0].Close
+    last := prices[len(prices)-1].Close
+    gain := last - first
+
+	return model.StrategyResult{
+		Strategy:      "Buy and Hold",
+		AbsoluteGain:  gain,
+		PercentReturn: (gain / first) * 100,
+	}, nil
+}
+
+func printResult(r model.StrategyResult) {
+    fmt.Printf("%s: $%.2f, gain %.2f%% \n\n", r.Strategy, r.AbsoluteGain, r.PercentReturn)
+}
 
 func main() {
 	if err := godotenv.Load(); err != nil {
@@ -31,5 +52,10 @@ func main() {
 	}
 
 	fmt.Printf("fetched %d price points for %s\n", len(prices), ticker)
-	fmt.Printf("first price point %s", prices[0])
+	result, err := calculateBuyAndHoldProfit(prices)
+	if err != nil {
+		log.Fatalf("calculating buy and hold profit for %s: %v", ticker, err)
+	}
+
+	printResult(result)
 }
