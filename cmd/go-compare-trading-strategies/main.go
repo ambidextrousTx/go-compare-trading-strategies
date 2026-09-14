@@ -10,23 +10,8 @@ import (
 
 	"go-compare-trading-strategies/internal/fetch"
 	"go-compare-trading-strategies/internal/model"
+	"go-compare-trading-strategies/internal/algorithms"
 )
-
-func calculateBuyAndHoldProfit(prices []model.PricePoint) (model.StrategyResult, error) {
-	if len(prices) == 0 {
-		return model.StrategyResult{}, fmt.Errorf("no price data to evaluate")
-	}
-
-	first := prices[0].Close
-    last := prices[len(prices)-1].Close
-    gain := last - first
-
-	return model.StrategyResult{
-		Strategy:      "Buy and Hold",
-		AbsoluteGain:  gain,
-		PercentReturn: (gain / first) * 100,
-	}, nil
-}
 
 func printResult(r model.StrategyResult) {
     fmt.Printf("%s: $%.2f, gain %.2f%% \n\n", r.Strategy, r.AbsoluteGain, r.PercentReturn)
@@ -52,7 +37,7 @@ func main() {
 	}
 
 	fmt.Printf("fetched %d price points for %s\n", len(prices), ticker)
-	result, err := calculateBuyAndHoldProfit(prices)
+	result, err := algorithms.CalculateBuyAndHoldProfit(prices)
 	if err != nil {
 		log.Fatalf("calculating buy and hold profit for %s: %v", ticker, err)
 	}
