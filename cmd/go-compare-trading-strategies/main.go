@@ -43,4 +43,11 @@ func main() {
 	}
 
 	printResult(result)
+
+	trend, err := algorithms.CalculateTrend(prices)
+	if err != nil {
+		log.Fatalf("calculating trend for %s: %v", ticker, err)
+	}
+
+	fmt.Println(trend)
 }
