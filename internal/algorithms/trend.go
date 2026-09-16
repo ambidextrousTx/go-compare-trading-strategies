@@ -1,16 +1,23 @@
 package algorithms
 
 import (
-	"fmt"
 	"go-compare-trading-strategies/internal/model"
 )
 
 type direction int
 
+func (d direction) String() string {
+	switch d {
+	case up: return "Up"
+	case down: return "Down"
+	default: return "Unknown"
+	}
+}
+
 const (
-    unknown direction = iota
-    up
-    down
+	unknown direction = iota
+	up
+	down
 )
 
 func CalculateTrend(prices []model.PricePoint) ([]direction, error) {
