@@ -2,6 +2,7 @@ package algorithms
 
 import (
 	"go-compare-trading-strategies/internal/model"
+	"fmt"
 )
 
 type direction int
@@ -70,5 +71,45 @@ func FindTurningPoints(prices []model.PricePoint, trend []direction) ([]TurningP
 	}
 
 	return turningPoints, nil
+
+}
+
+func CalculateBuyLowSellHighProfit(prices []model.PricePoint) (model.StrategyResult, error) {
+
+	trend, err := CalculateTrend(prices)
+	if err != nil {
+		return model.StrategyResult{}, fmt.Errorf("calculating trend: %w", err)
+	}
+
+	turningPoints, err := FindTurningPoints(prices, trend)
+	if err != nil {
+		return model.StrategyResult{}, fmt.Errorf("calculating turning points: %w", err)
+	}
+
+	first := prices[0].Close
+	gain := 0.0
+	holding := false
+	buyPrice := 0.0
+
+	for _, tp := range turningPoints {
+		switch tp.Type {
+		case localMin:
+			if !holding {
+				buyPrice = tp.Point.Close
+				holding = true
+			}
+		case localMax:
+			if holding {
+				gain += tp.Point.Close - buyPrice
+				holding = false
+			}
+		}
+	}
+
+	return model.StrategyResult{
+		Strategy:      "Buy Local Min Sell Local Max",
+		AbsoluteGain:  gain,
+		PercentReturn: (gain / first) * 100,
+	}, nil
 
 }

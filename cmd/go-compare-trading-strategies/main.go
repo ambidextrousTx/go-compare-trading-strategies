@@ -44,10 +44,10 @@ func main() {
 
 	printResult(result)
 
-	trend, err := algorithms.CalculateTrend(prices)
+	result2, err := algorithms.CalculateBuyLowSellHighProfit(prices)
 	if err != nil {
-		log.Fatalf("calculating trend for %s: %v", ticker, err)
+		log.Fatalf("calculating buy-low-sell-high for %s: %v", ticker, err)
 	}
 
-	fmt.Println(trend)
+	printResult(result2)
 }
