@@ -27,8 +27,12 @@ func main() {
 		log.Fatal("ALPHAVANTAGE_API_KEY not set (check your .env file)")
 	}
 
-	// TODO: take ticker as a CLI arg instead of hardcoding
-	ticker := "AAPL"
+	if len(os.Args) < 2 {
+		log.Fatalf("can't run without ticker. Please provide ticker symbol as program argument.")
+	}
+
+	ticker := os.Args[1]
+
 	fmt.Println("Ticker is", ticker)
 
 	prices, err := fetch.FetchDaily(ticker, apiKey)
