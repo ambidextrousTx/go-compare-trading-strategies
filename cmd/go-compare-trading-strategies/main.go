@@ -14,7 +14,7 @@ import (
 )
 
 func printResult(r model.StrategyResult) {
-    fmt.Printf("%s: $%.2f, gain %.2f%% \n\n", r.Strategy, r.AbsoluteGain, r.PercentReturn)
+    fmt.Printf("%s: $%.2f, gain %.2f%% \n", r.Strategy, r.AbsoluteGain, r.PercentReturn)
 }
 
 func main() {
@@ -40,7 +40,7 @@ func main() {
 		log.Fatalf("fetching prices for %s: %v", ticker, err)
 	}
 
-	fmt.Printf("fetched %d price points for %s\n", len(prices), ticker)
+	fmt.Printf("Fetched %d price points for %s\n\n", len(prices), ticker)
 	result, err := algorithms.CalculateBuyAndHoldProfit(prices)
 	if err != nil {
 		log.Fatalf("calculating buy and hold profit for %s: %v", ticker, err)
